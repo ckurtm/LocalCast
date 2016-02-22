@@ -2,5 +2,6 @@
     <string name="app_name">LocalCast</string>
     <string name="cast_app_id">84B70D9D</string>
     <string name="action_cast">Cast</string>
+    <string name="cast_video_app_id">4F8B3483</string>
 
 </resources>

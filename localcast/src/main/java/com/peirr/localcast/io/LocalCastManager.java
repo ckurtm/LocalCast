@@ -5,9 +5,12 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.util.Log;
+import android.view.Menu;
 
+import com.google.android.gms.cast.MediaInfo;
 import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration;
 import com.google.android.libraries.cast.companionlibrary.cast.DataCastManager;
+import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.peirr.http.mvp.HttpContract;
 import com.peirr.http.mvp.HttpPresenter;
 import com.peirr.http.mvp.HttpRepositories;
@@ -18,6 +21,8 @@ import com.peirr.localcast.mvp.CastContract;
 import com.peirr.localcast.mvp.CastPresenter;
 import com.peirr.localcast.mvp.CastRepositories;
 import com.peirr.localcast.mvp.CastRepository;
+
+import java.util.Locale;
 
 /**
  * Created by kurt on 2016/01/29.
@@ -32,19 +37,22 @@ public class LocalCastManager implements HttpContract.View, CastContract.View {
     private HttpPresenter http;
     private CastPresenter cast;
     private SimpleHttpInfo httpInfo;
+    private boolean isCustom;
     private int version = -1;
 
-    public LocalCastManager(Activity activity, String castNamespace) {
+    public LocalCastManager(Activity activity, String castNamespace,boolean isCustom) {
+        this.isCustom = isCustom;
         HttpRepository repository = new HttpRepositories(activity, SimpleHttpService.generatePort());
-        CastRepository castRepository = new CastRepositories(castNamespace);
+        CastRepository castRepository = new CastRepositories(activity,castNamespace, isCustom);
         http = new HttpPresenter(repository, this);
         cast = new CastPresenter(castRepository, this);
         getVersionCode(activity);
     }
 
-    public LocalCastManager(Activity activity, String castNamespace, int port) {
+    public LocalCastManager(Activity activity, String castNamespace, int port,boolean isCustom) {
+        this.isCustom = isCustom;
         HttpRepository repository = new HttpRepositories(activity, port);
-        CastRepository castRepository = new CastRepositories(castNamespace);
+        CastRepository castRepository = new CastRepositories(activity,castNamespace,isCustom);
         http = new HttpPresenter(repository, this);
         cast = new CastPresenter(castRepository, this);
         getVersionCode(activity);
@@ -118,42 +126,16 @@ public class LocalCastManager implements HttpContract.View, CastContract.View {
         }
     }
 
-    public void send(CastMessageUtils.CastMessage message){
+    public String getEndpoint(){
+        return "http://" + httpInfo.ip + ":" + httpInfo.port;
+    }
+
+    public void post(String message){
         cast.post(message);
     }
 
-    private void playMedia(CastMessageUtils.CastType type,String url){
-        if (httpInfo != null) {
-            String host = "http://" + httpInfo.ip + ":" + httpInfo.port;
-            CastMessageUtils.CastMessage message = CastMessageUtils.play(type,url,host,version);
-            cast.post(message);
-        }
-    }
-
-    /**
-     * cast a local video to a connected cast device
-     * @param url
-     */
-    public void castVideo(String url){
-        playMedia(CastMessageUtils.CastType.VIDEO,url);
-    }
-
-    /**
-     * cast a local image to a connected cast device
-     * @param url
-     */
-    public void castImage(String url){
-        playMedia(CastMessageUtils.CastType.IMAGE,url);
-    }
-
-
-    /**
-     * cast a local audio file to a connected cast device
-     * @param url
-     */
-    public void castAudio(String url){
-        playMedia(CastMessageUtils.CastType.AUDIO,url);
-
+    public void play(MediaInfo info){
+        cast.play(info);
     }
 
     private void getVersionCode(Activity activity) {
@@ -178,6 +160,14 @@ public class LocalCastManager implements HttpContract.View, CastContract.View {
     }
 
 
+    public void addMediaRouterButton(Menu menu, int menuResourceId){
+        if(isCustom){
+            DataCastManager.getInstance().addMediaRouterButton(menu, menuResourceId);
+        }else{
+            VideoCastManager.getInstance().addMediaRouterButton(menu, menuResourceId);
+        }
+    }
+
     /**
      * disconnect the manager from your activity/fragment using this
      */
@@ -188,17 +178,27 @@ public class LocalCastManager implements HttpContract.View, CastContract.View {
         unregisterHttpConnectionListener();
     }
 
-    public static void initialize(Context context, String castAppId){
+    public static void initialize(Context context, String castAppId,boolean isData){
         CastConfiguration.Builder builder = new CastConfiguration.Builder(castAppId);
-        builder.enableAutoReconnect();
-        builder.enableDebug();
-        builder.enableLockScreen();
-        builder.enableWifiReconnection();
-        builder.enableNotification();
-        builder.addNotificationAction(CastConfiguration.NOTIFICATION_ACTION_PLAY_PAUSE, true);
-        builder.addNotificationAction(CastConfiguration.NOTIFICATION_ACTION_DISCONNECT, true);
-        CastConfiguration configuration = builder.build();
-        DataCastManager.initialize(context,configuration);
+        CastConfiguration configuration =  builder.enableAutoReconnect()
+                .enableCaptionManagement()
+                .enableDebug()
+                .enableLockScreen()
+                .enableNotification()
+                .enableWifiReconnection()
+                .setCastControllerImmersive(true)
+                .setLaunchOptions(false, Locale.getDefault())
+                .setNextPrevVisibilityPolicy(CastConfiguration.NEXT_PREV_VISIBILITY_POLICY_DISABLED)
+                .addNotificationAction(CastConfiguration.NOTIFICATION_ACTION_REWIND, false)
+                .addNotificationAction(CastConfiguration.NOTIFICATION_ACTION_PLAY_PAUSE, true)
+                .addNotificationAction(CastConfiguration.NOTIFICATION_ACTION_DISCONNECT, true)
+                .setForwardStep(10)
+                .build();
+        if(isData){
+            DataCastManager.initialize(context,configuration);
+        }else{
+            VideoCastManager.initialize(context,configuration);
+        }
     }
 
 

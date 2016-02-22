@@ -1,7 +1,7 @@
 package com.peirr.localcast.mvp;
 
 
-import com.peirr.localcast.io.CastMessageUtils;
+import com.google.android.gms.cast.MediaInfo;
 
 /**
  * Created by kurt on 2015/11/24.
@@ -14,7 +14,8 @@ public class CastContract {
     }
 
     public interface ActionsListener {
-        void post(CastMessageUtils.CastMessage message);
+        void post(String json);
+        void play(MediaInfo info);
         void attach();
         void detach();
     }

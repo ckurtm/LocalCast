@@ -1,3 +1,5 @@
+
+
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
@@ -113,6 +115,6 @@ task findConventions << {
 
 
 dependencies {
-    compile "mbanje.kurt:cast_companion:2.7.3"
+    compile 'com.google.android.libraries.cast.companionlibrary:ccl:2.8.0'
     compile 'com.peirr.http:http_service:1.3'
 }

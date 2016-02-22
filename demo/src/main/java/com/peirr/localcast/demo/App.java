@@ -12,6 +12,6 @@ public class App extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-        LocalCastManager.initialize(this,getString(R.string.cast_app_id));
+        LocalCastManager.initialize(this,getString(R.string.cast_video_app_id),false);
     }
 }

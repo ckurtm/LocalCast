@@ -1,9 +1,14 @@
 package com.peirr.localcast.mvp;
 
-import com.google.android.libraries.cast.companionlibrary.cast.DataCastManager;
-import com.peirr.localcast.io.CastConnectionListener;
-import com.peirr.localcast.io.CastMessageListener;
+import android.content.Context;
 
+import com.google.android.gms.cast.MediaInfo;
+import com.google.android.libraries.cast.companionlibrary.cast.BaseCastManager;
+import com.google.android.libraries.cast.companionlibrary.cast.DataCastManager;
+import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
+import com.peirr.localcast.io.CastConnectionListener;
+import com.peirr.localcast.io.CastDataMessageListener;
+import com.peirr.localcast.io.CastVideoMessageListener;
 
 import java.io.IOException;
 
@@ -13,18 +18,28 @@ import java.io.IOException;
 public class CastRepositories implements CastRepository {
     String TAG = CastRepositories.class.getSimpleName();
     private final String namespace;
-    private DataCastManager manager;
+    private BaseCastManager manager;
+    private boolean isCustom;
+    private final Context context;
 
-    public CastRepositories(String namespace) {
+    public CastRepositories(Context context,String namespace,boolean isCustom) {
         this.namespace = namespace;
-        manager = DataCastManager.getInstance();
+        this.context = context;
+        this.isCustom = isCustom;
+        if(isCustom) {
+            manager = DataCastManager.getInstance();
+        }else{
+            manager = VideoCastManager.getInstance();
+        }
     }
 
     @Override
     public boolean post(String json) {
         if(manager.isConnected()) {
             try {
-                manager.sendDataMessage(json, namespace);
+                if(isCustom) {
+                    ((DataCastManager)manager).sendDataMessage(json, namespace);
+                }
                 return true;
             } catch (IOException e) {
                 return false;
@@ -34,8 +49,12 @@ public class CastRepositories implements CastRepository {
     }
 
     @Override
-    public void attach(CastConnectionListener connectionListener, CastMessageListener messageListener) {
-        manager.addDataCastConsumer(messageListener);
+    public void attach(CastConnectionListener connectionListener, CastDataMessageListener dataMessageListener, CastVideoMessageListener videoMessageListener) {
+        if (dataMessageListener != null) {
+            ((DataCastManager)manager).addDataCastConsumer(dataMessageListener);
+        }else if(videoMessageListener != null){
+            ((VideoCastManager)manager).addVideoCastConsumer(videoMessageListener);
+        }
         manager.addBaseCastConsumer(connectionListener);
         manager.incrementUiCounter();
     }
@@ -43,5 +62,17 @@ public class CastRepositories implements CastRepository {
     @Override
     public void detach() {
         manager.decrementUiCounter();
+    }
+
+
+    @Override
+    public void play(MediaInfo info) {
+        if(!isCustom) {
+            ((VideoCastManager)manager).startVideoCastControllerActivity(context,info,0,true);
+        }
+    }
+
+    public boolean isDatacentric() {
+        return isCustom;
     }
 }

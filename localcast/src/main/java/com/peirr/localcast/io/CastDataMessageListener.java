@@ -5,4 +5,4 @@ import com.google.android.libraries.cast.companionlibrary.cast.callbacks.DataCas
 /**
  * Created by kurt on 2015/11/24.
  */
-public class CastMessageListener extends DataCastConsumerImpl {}
+public class CastDataMessageListener extends DataCastConsumerImpl {}
