@@ -6,12 +6,12 @@ apply plugin: 'com.jfrog.bintray'
 
 
 
-version = "1.0.1"
+version = "1.0.2"
 group = "com.peirr"
 
 ext {
     supportLibVersion = '23.1.1'
-    versionName = '1.0.1'
+    versionName = '1.0.2'
     groupId = "com.peirr"
     appId = "localcast"
 }
@@ -116,5 +116,5 @@ task findConventions << {
 
 dependencies {
     compile 'com.google.android.libraries.cast.companionlibrary:ccl:2.8.0'
-    compile 'com.peirr.http:http_service:1.3'
+    compile 'com.peirr.http:http_service:1.5'
 }

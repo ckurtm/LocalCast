@@ -67,9 +67,7 @@ public class CastRepositories implements CastRepository {
 
     @Override
     public void play(MediaInfo info) {
-        if(!isCustom) {
-            ((VideoCastManager)manager).startVideoCastControllerActivity(context,info,0,true);
-        }
+        VideoCastManager.getInstance().startVideoCastControllerActivity(context,info,0,true);
     }
 
     public boolean isDatacentric() {

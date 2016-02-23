@@ -42,13 +42,13 @@ public class CastActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/test.jpg");
+                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4k/Bees.mp4");
                 MediaPlayer mp = MediaPlayer.create(CastActivity.this,Uri.parse(file.getAbsolutePath()));
-                int duration = 1;
+                int duration = mp.getDuration();
                 String url = castManager.getEndpoint()  + file.getAbsolutePath();
                 Log.d(TAG,"[duration:"+duration+"] [url:"+url+"]");
-//                MediaInfo info = buildMediaInfo("test","Studio","subtitle",duration,url,URLConnection.guessContentTypeFromName(file.getAbsolutePath()),"","",new ArrayList<MediaTrack>());
-//                castManager.play(info);
+                MediaInfo info = buildMediaInfo("test","Studio","subtitle",duration,url,URLConnection.guessContentTypeFromName(file.getAbsolutePath()),"","",new ArrayList<MediaTrack>());
+                castManager.play(info);
             }
         });
     }
