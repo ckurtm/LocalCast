@@ -107,6 +107,10 @@ public class LocalCastManager implements HttpContract.View, CastContract.View {
         }
     }
 
+    public boolean isCastConnected() {
+        return castConnected;
+    }
+
     @Override
     public void showCastError() {
         if (castConnectionListener != null) {
