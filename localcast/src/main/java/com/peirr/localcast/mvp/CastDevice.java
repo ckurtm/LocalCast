@@ -15,14 +15,14 @@ import java.io.IOException;
 /**
  * Created by kurt on 2015/11/24.
  */
-public class CastRepositories implements CastRepository {
-    String TAG = CastRepositories.class.getSimpleName();
+public class CastDevice implements ICastRequest {
+    String TAG = CastDevice.class.getSimpleName();
     private final String namespace;
     private BaseCastManager manager;
     private boolean isCustom;
     private final Context context;
 
-    public CastRepositories(Context context,String namespace,boolean isCustom) {
+    public CastDevice(Context context, String namespace, boolean isCustom) {
         this.namespace = namespace;
         this.context = context;
         this.isCustom = isCustom;

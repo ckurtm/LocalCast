@@ -9,12 +9,14 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
+import android.widget.TextView;
 
 import com.google.android.gms.cast.MediaInfo;
 import com.google.android.gms.cast.MediaMetadata;
 import com.google.android.gms.cast.MediaTrack;
 import com.google.android.gms.common.images.WebImage;
-import com.google.android.libraries.cast.companionlibrary.utils.Utils;
+import com.peirr.http.service.SimpleHttpInfo;
+import com.peirr.http.service.SimpleHttpService;
 import com.peirr.localcast.io.LocalCastManager;
 
 import org.json.JSONException;
@@ -25,23 +27,26 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.List;
 
-public class CastActivity extends AppCompatActivity {
+public class CastActivity extends AppCompatActivity implements LocalCastManager.HttpConnectionListener, LocalCastManager.CastConnectionListener {
     private static final String TAG = "CastActivity";
     private LocalCastManager castManager;
+    private TextView castMsg,httpMsg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cast_demo);
-        castManager = new LocalCastManager(this,getString(R.string.cast_app_id),5678,false);
+        castManager = new LocalCastManager(this,"sdfsd",5678,false);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        castMsg = (TextView) findViewById(R.id.cast_message);
+        httpMsg = (TextView) findViewById(R.id.http_message);
+
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4k/Bees.mp4");
                 MediaPlayer mp = MediaPlayer.create(CastActivity.this,Uri.parse(file.getAbsolutePath()));
                 int duration = mp.getDuration();
@@ -51,6 +56,9 @@ public class CastActivity extends AppCompatActivity {
                 castManager.play(info);
             }
         });
+
+        castManager.registerHttpConnectionListener(this);
+        castManager.registerCastConnectionListener(this);
     }
 
 
@@ -103,5 +111,30 @@ public class CastActivity extends AppCompatActivity {
                 .setStreamDuration(duration)
                 .setCustomData(jsonObj)
                 .build();
+    }
+
+
+    @Override
+    public void onHttpConnectionChanged(int status, SimpleHttpInfo info) {
+        String message = "";
+        switch (status) {
+            case SimpleHttpService.STATE_RUNNING:
+                message = "RUNNING [" + info.ip + ":" + info.port + "]";
+                break;
+            case SimpleHttpService.STATE_STOPPED:
+                message = "SHUTDOWN [" + info.ip + ":" + info.port + "]";
+                break;
+            case SimpleHttpService.STATE_ERROR:
+                message = "ERROR: " + (info!=null?info.message:"");
+                break;
+        }
+        httpMsg.setText(getString(R.string.http_connection,message));
+    }
+
+    @Override
+    public void onCastConnectionChanged(boolean connected, Exception exception) {
+        String message = connected?"CONNECTED":"DISCONNECTED";
+        castMsg.setText(getString(R.string.cast_connection,message));
+
     }
 }

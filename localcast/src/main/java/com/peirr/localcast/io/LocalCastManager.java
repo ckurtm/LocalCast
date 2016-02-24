@@ -13,19 +13,22 @@ import com.google.android.libraries.cast.companionlibrary.cast.DataCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.peirr.http.mvp.HttpContract;
 import com.peirr.http.mvp.HttpPresenter;
-import com.peirr.http.mvp.HttpRepositories;
-import com.peirr.http.mvp.HttpRepository;
+
+import com.peirr.http.mvp.HttpServer;
+import com.peirr.http.mvp.IServerRequest;
 import com.peirr.http.service.SimpleHttpInfo;
 import com.peirr.http.service.SimpleHttpService;
 import com.peirr.localcast.mvp.CastContract;
 import com.peirr.localcast.mvp.CastPresenter;
-import com.peirr.localcast.mvp.CastRepositories;
-import com.peirr.localcast.mvp.CastRepository;
+import com.peirr.localcast.mvp.CastDevice;
+import com.peirr.localcast.mvp.ICastRequest;
 
 import java.util.Locale;
 
 /**
  * Created by kurt on 2016/01/29.
+ * Handles the state toggling between the cast device and the local http service. When a cast device is connected , this auto starts
+ * the local http server. It shuts down the httpserver as soon as the cast device is disconnected.
  */
 public class LocalCastManager implements HttpContract.View, CastContract.View {
 
@@ -42,28 +45,34 @@ public class LocalCastManager implements HttpContract.View, CastContract.View {
 
     public LocalCastManager(Activity activity, String castNamespace,boolean isCustom) {
         this.isCustom = isCustom;
-        HttpRepository repository = new HttpRepositories(activity, SimpleHttpService.generatePort());
-        CastRepository castRepository = new CastRepositories(activity,castNamespace, isCustom);
-        http = new HttpPresenter(repository, this);
-        cast = new CastPresenter(castRepository, this);
+        IServerRequest server = new HttpServer(activity, SimpleHttpService.generatePort());
+        ICastRequest castRequest = new CastDevice(activity,castNamespace, isCustom);
+        http = new HttpPresenter(server, this);
+        cast = new CastPresenter(castRequest, this);
         getVersionCode(activity);
     }
 
     public LocalCastManager(Activity activity, String castNamespace, int port,boolean isCustom) {
         this.isCustom = isCustom;
-        HttpRepository repository = new HttpRepositories(activity, port);
-        CastRepository castRepository = new CastRepositories(activity,castNamespace,isCustom);
-        http = new HttpPresenter(repository, this);
-        cast = new CastPresenter(castRepository, this);
+        IServerRequest server = new HttpServer(activity, port);
+        ICastRequest castRequest = new CastDevice(activity,castNamespace,isCustom);
+        http = new HttpPresenter(server, this);
+        cast = new CastPresenter(castRequest, this);
         getVersionCode(activity);
     }
 
+    /**
+     * Call for connection state on a cast device
+     */
     public interface CastConnectionListener {
         void onCastConnectionChanged(boolean connected, Exception exception);
     }
 
+    /**
+     * Callback for state of the local http server
+     */
     public interface HttpConnectionListener {
-        void onServerConnectionChanged(int status, SimpleHttpInfo info);
+        void onHttpConnectionChanged(int status, SimpleHttpInfo info);
     }
 
     /**
@@ -122,11 +131,12 @@ public class LocalCastManager implements HttpContract.View, CastContract.View {
     public void showHttpStatus(int status, SimpleHttpInfo info) {
         if(status == SimpleHttpService.STATE_RUNNING){
             httpInfo = info;
+            Log.d(TAG,"" + getEndpoint());
         }else{
             httpInfo = null;
         }
         if (httpConnectionListener != null) {
-            httpConnectionListener.onServerConnectionChanged(status, info);
+            httpConnectionListener.onHttpConnectionChanged(status, info);
         }
     }
 

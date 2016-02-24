@@ -4,5 +4,7 @@
     <string name="cast_app_namespace">84B70D9D</string>
     <string name="action_cast">Cast</string>
     <string name="cast_video_app_id">4F8B3483</string>
+    <string name="cast_connection">CAST: %s</string>
+    <string name="http_connection">HTTP: %s</string>
 
 </resources>

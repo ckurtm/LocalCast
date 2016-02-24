@@ -4,7 +4,6 @@ import android.util.Log;
 
 import com.google.android.gms.cast.CastDevice;
 import com.google.android.gms.cast.MediaInfo;
-import com.peirr.localcast.io.CastMessageUtils;
 import com.peirr.localcast.io.CastConnectionListener;
 import com.peirr.localcast.io.CastDataMessageListener;
 import com.peirr.localcast.io.CastVideoMessageListener;
@@ -15,7 +14,7 @@ import com.peirr.localcast.io.CastVideoMessageListener;
 public class CastPresenter implements CastContract.ActionsListener {
     private String TAG = CastPresenter.class.getSimpleName();
 
-    private final CastRepository repository;
+    private final ICastRequest repository;
     private final CastContract.View view;
     private CastDataMessageListener dataListener;
     private CastVideoMessageListener videoListener;
@@ -61,7 +60,7 @@ public class CastPresenter implements CastContract.ActionsListener {
         this.videoListener = videoListener;
     }
 
-    public CastPresenter(CastRepository repository, CastContract.View view) {
+    public CastPresenter(ICastRequest repository, CastContract.View view) {
         this.repository = repository;
         this.view = view;
     }

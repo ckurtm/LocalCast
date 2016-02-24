@@ -9,7 +9,7 @@ import com.peirr.localcast.io.CastVideoMessageListener;
 /**
  * Created by kurt on 2015/11/24.
  */
-public interface CastRepository {
+public interface ICastRequest {
     boolean post(String json);
     void attach(CastConnectionListener connectionListener, CastDataMessageListener dataListener, CastVideoMessageListener videoListener);
     void detach();
