@@ -4,25 +4,30 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 
 import com.google.android.gms.cast.MediaInfo;
+import com.google.android.gms.cast.MediaMetadata;
+import com.google.android.gms.cast.MediaTrack;
+import com.google.android.gms.common.images.WebImage;
 import com.google.android.libraries.cast.companionlibrary.cast.CastConfiguration;
 import com.google.android.libraries.cast.companionlibrary.cast.DataCastManager;
 import com.google.android.libraries.cast.companionlibrary.cast.VideoCastManager;
 import com.peirr.http.mvp.HttpContract;
 import com.peirr.http.mvp.HttpPresenter;
-
 import com.peirr.http.mvp.HttpServer;
 import com.peirr.http.mvp.IServerRequest;
 import com.peirr.http.service.SimpleHttpInfo;
 import com.peirr.http.service.SimpleHttpService;
 import com.peirr.localcast.mvp.CastContract;
-import com.peirr.localcast.mvp.CastPresenter;
 import com.peirr.localcast.mvp.CastDevice;
+import com.peirr.localcast.mvp.CastPresenter;
 import com.peirr.localcast.mvp.ICastRequest;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -44,15 +49,22 @@ public class LocalCastManager implements HttpContract.View, CastContract.View {
     private int version = -1;
 
     public LocalCastManager(Activity activity, String castNamespace,boolean isCustom) {
-        this.isCustom = isCustom;
-        IServerRequest server = new HttpServer(activity, SimpleHttpService.generatePort());
-        ICastRequest castRequest = new CastDevice(activity,castNamespace, isCustom);
-        http = new HttpPresenter(server, this);
-        cast = new CastPresenter(castRequest, this);
-        getVersionCode(activity);
+        init(activity, castNamespace, SimpleHttpService.generatePort(), isCustom);
     }
 
     public LocalCastManager(Activity activity, String castNamespace, int port,boolean isCustom) {
+        init(activity, castNamespace, port, isCustom);
+    }
+
+    public LocalCastManager(Activity activity,int port,boolean isCustom) {
+        init(activity,null, port, isCustom);
+    }
+
+    public LocalCastManager(Activity activity) {
+        init(activity,null,SimpleHttpService.generatePort(),false);
+    }
+
+    private void init(Activity activity, String castNamespace, int port, boolean isCustom) {
         this.isCustom = isCustom;
         IServerRequest server = new HttpServer(activity, port);
         ICastRequest castRequest = new CastDevice(activity,castNamespace,isCustom);
@@ -213,6 +225,43 @@ public class LocalCastManager implements HttpContract.View, CastContract.View {
         }else{
             VideoCastManager.initialize(context,configuration);
         }
+    }
+
+    public MediaInfo buildMediaInfo(int mediaType,String title, String subTitle,int duration,
+                                    String url, String mimeType, String imgUrl,
+                                    String bigImageUrl,List<MediaTrack> tracks) {
+        String endpoint =  getEndpoint();
+        MediaMetadata movieMetadata = new MediaMetadata(mediaType);
+        return getMediaInfo(title, subTitle, duration, url, mimeType, imgUrl, bigImageUrl, tracks, endpoint, movieMetadata);
+    }
+
+    public MediaInfo buildMediaInfo(String title, String subTitle,int duration,
+                                            String url, String mimeType, String imgUrl,
+                                            String bigImageUrl,List<MediaTrack> tracks) {
+        String endpoint =  getEndpoint();
+        MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
+        return getMediaInfo(title, subTitle, duration, url, mimeType, imgUrl, bigImageUrl, tracks, endpoint, movieMetadata);
+    }
+
+    private MediaInfo getMediaInfo(String title, String subTitle, int duration, String url, String mimeType, String imgUrl, String bigImageUrl, List<MediaTrack> tracks, String endpoint, MediaMetadata movieMetadata) {
+        movieMetadata.putString(MediaMetadata.KEY_TITLE, title);
+        movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, subTitle);
+
+        if(!TextUtils.isEmpty(imgUrl)) {
+            movieMetadata.addImage(new WebImage(Uri.parse(endpoint + "/" + imgUrl)));
+        }
+
+        if(!TextUtils.isEmpty(bigImageUrl)) {
+            movieMetadata.addImage(new WebImage(Uri.parse(endpoint+ "/" + bigImageUrl)));
+        }
+
+        return new MediaInfo.Builder(endpoint + "/" + url)
+                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
+                .setContentType(mimeType)
+                .setMetadata(movieMetadata)
+                .setMediaTracks(tracks)
+                .setStreamDuration(duration)
+                .build();
     }
 
 

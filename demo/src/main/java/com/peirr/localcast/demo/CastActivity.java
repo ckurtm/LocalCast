@@ -30,13 +30,13 @@ import java.util.List;
 public class CastActivity extends AppCompatActivity implements LocalCastManager.HttpConnectionListener, LocalCastManager.CastConnectionListener {
     private static final String TAG = "CastActivity";
     private LocalCastManager castManager;
-    private TextView castMsg,httpMsg;
+    private TextView castMsg, httpMsg;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cast_demo);
-        castManager = new LocalCastManager(this,"sdfsd",5678,false);
+        castManager = new LocalCastManager(this);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         castMsg = (TextView) findViewById(R.id.cast_message);
         httpMsg = (TextView) findViewById(R.id.http_message);
@@ -47,12 +47,12 @@ public class CastActivity extends AppCompatActivity implements LocalCastManager.
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/4k/Bees.mp4");
-                MediaPlayer mp = MediaPlayer.create(CastActivity.this,Uri.parse(file.getAbsolutePath()));
+                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DevBytes.mp4");
+                MediaPlayer mp = MediaPlayer.create(CastActivity.this, Uri.parse(file.getAbsolutePath()));
                 int duration = mp.getDuration();
-                String url = castManager.getEndpoint()  + file.getAbsolutePath();
-                Log.d(TAG,"[duration:"+duration+"] [url:"+url+"]");
-                MediaInfo info = buildMediaInfo("test","Studio","subtitle",duration,url,URLConnection.guessContentTypeFromName(file.getAbsolutePath()),"","",new ArrayList<MediaTrack>());
+                String url = file.getAbsolutePath();
+                MediaInfo info = castManager.buildMediaInfo("test", "subtitle", duration, url, URLConnection.guessContentTypeFromName(file.getAbsolutePath()), "", "", new ArrayList<MediaTrack>());
+                Log.d(TAG, "[duration:" + duration + "] [url:" + castManager.getEndpoint() + "/" + url + "]");
                 castManager.play(info);
             }
         });
@@ -88,32 +88,6 @@ public class CastActivity extends AppCompatActivity implements LocalCastManager.
         return true;
     }
 
-
-    private static MediaInfo buildMediaInfo(String title, String studio, String subTitle,int duration, String url, String mimeType, String imgUrl, String bigImageUrl,List<MediaTrack> tracks) {
-        String KEY_DESCRIPTION = "description";
-        MediaMetadata movieMetadata = new MediaMetadata(MediaMetadata.MEDIA_TYPE_MOVIE);
-        movieMetadata.putString(MediaMetadata.KEY_SUBTITLE, studio);
-        movieMetadata.putString(MediaMetadata.KEY_TITLE, title);
-        movieMetadata.addImage(new WebImage(Uri.parse(imgUrl)));
-        movieMetadata.addImage(new WebImage(Uri.parse(bigImageUrl)));
-        JSONObject jsonObj = null;
-        try {
-            jsonObj = new JSONObject();
-            jsonObj.put(KEY_DESCRIPTION, subTitle);
-        } catch (JSONException e) {
-            Log.e(TAG, "Failed to add description to the json object", e);
-        }
-        return new MediaInfo.Builder(url)
-                .setStreamType(MediaInfo.STREAM_TYPE_BUFFERED)
-                .setContentType(mimeType)
-                .setMetadata(movieMetadata)
-                .setMediaTracks(tracks)
-                .setStreamDuration(duration)
-                .setCustomData(jsonObj)
-                .build();
-    }
-
-
     @Override
     public void onHttpConnectionChanged(int status, SimpleHttpInfo info) {
         String message = "";
@@ -125,16 +99,16 @@ public class CastActivity extends AppCompatActivity implements LocalCastManager.
                 message = "SHUTDOWN [" + info.ip + ":" + info.port + "]";
                 break;
             case SimpleHttpService.STATE_ERROR:
-                message = "ERROR: " + (info!=null?info.message:"");
+                message = "ERROR: " + (info != null ? info.message : "");
                 break;
         }
-        httpMsg.setText(getString(R.string.http_connection,message));
+        httpMsg.setText(getString(R.string.http_connection, message));
     }
 
     @Override
     public void onCastConnectionChanged(boolean connected, Exception exception) {
-        String message = connected?"CONNECTED":"DISCONNECTED";
-        castMsg.setText(getString(R.string.cast_connection,message));
+        String message = connected ? "CONNECTED" : "DISCONNECTED";
+        castMsg.setText(getString(R.string.cast_connection, message));
 
     }
 }

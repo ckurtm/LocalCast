@@ -6,12 +6,12 @@ apply plugin: 'com.jfrog.bintray'
 
 
 
-version = "1.0.4"
+version = "1.0.5"
 group = "com.peirr"
 
 ext {
     supportLibVersion = '23.1.1'
-    versionName = '1.0.4'
+    versionName = '1.0.5'
     groupId = "com.peirr"
     appId = "localcast"
 }
@@ -28,7 +28,7 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 23
-        versionCode 3
+        versionCode 5
         versionName "${versionName}"
     }
     buildTypes {
