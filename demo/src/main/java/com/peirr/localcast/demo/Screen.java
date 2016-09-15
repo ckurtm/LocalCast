@@ -1,5 +1,6 @@
 package com.peirr.localcast.demo;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -11,9 +12,9 @@ import android.widget.TextView;
 import com.peirra.cast.local.LocalContract;
 import com.peirra.cast.local.LocalPresenter;
 
-public class CastActivity extends AppCompatActivity implements LocalContract.View {
-    private static final String TAG = "CastActivity";
-    private LocalPresenter castmanager;
+public class Screen extends AppCompatActivity implements LocalContract.View {
+    private static final String TAG = "Screen";
+    private LocalPresenter presenter;
     private TextView castMsg, httpMsg;
 
     private String MESSAGE = "{  \n" +
@@ -29,18 +30,24 @@ public class CastActivity extends AppCompatActivity implements LocalContract.Vie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cast_demo);
-        castmanager = new LocalPresenter(Injection.provideHttpRequest(this),Injection.provideCastDevice(this,CastOptionsProvider.CUSTOM_NAMESPACE));
+        presenter = new LocalPresenter(Injection.provideHttpRequest(this),
+                Injection.provideCastDevice(this, CastOptionsProvider.CUSTOM_NAMESPACE));
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         castMsg = (TextView) findViewById(R.id.cast_message);
         httpMsg = (TextView) findViewById(R.id.http_message);
-
+        findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(final View v) {
+                startActivity(new Intent(Screen.this, Screen.class));
+            }
+        });
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
 
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                castmanager.post(MESSAGE);
+                presenter.post(MESSAGE);
             }
         });
     }
@@ -49,14 +56,14 @@ public class CastActivity extends AppCompatActivity implements LocalContract.Vie
     @Override
     protected void onStart() {
         super.onStart();
-        castmanager.attachView(this);
+        presenter.attachView(this);
     }
 
 
     @Override
     protected void onStop() {
         super.onStop();
-        castmanager.detachView();
+        presenter.detachView();
     }
 
 
@@ -64,18 +71,20 @@ public class CastActivity extends AppCompatActivity implements LocalContract.Vie
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu, menu);
-        castmanager.addMenu(menu, R.id.action_cast);
+        presenter.addMenu(menu, R.id.action_cast);
         return true;
     }
 
     @Override
     public void showCastConnected(final boolean connected) {
+        Log.d(TAG, "showCastConnected() : " + "connected = [" + connected + "]");
         String message = connected ? "CONNECTED" : "DISCONNECTED";
         castMsg.setText(getString(R.string.cast_connection, message));
     }
 
     @Override
     public void showServerConnected(final boolean connected, final String endpoint) {
+        Log.d(TAG, "showServerConnected() : " + "connected = [" + connected + "], endpoint = [" + endpoint + "]");
         String message = connected ? "CONNECTED" : "DISCONNECTED";
         httpMsg.setText(getString(R.string.http_connection, message + ": " + endpoint));
 

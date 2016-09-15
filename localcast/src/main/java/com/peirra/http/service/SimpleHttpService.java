@@ -90,23 +90,25 @@ public class SimpleHttpService extends Service implements ISimpleHttpServiceClie
     @Override
     public void bootup(int port) {
         Log.d(TAG, "bootup()");
-        try{
-            if(port != 0){
-                SimpleHttpService.port = port;
+        if (server == null) {
+            try{
+                if(port != 0){
+                    SimpleHttpService.port = port;
+                }
+                SimpleHttpInfo info = getInfo(this,ip, SimpleHttpService.port);
+                ip = info.ip;
+                server = new SocketThread(serverHandler, serverRoot,info.ip,info.port);
+                server.start();
+                currentState = STATE_RUNNING;
+                Log.d(TAG, "boot success...");
+            } catch (Exception e) {
+                currentState = STATE_ERROR;
+                message = e.getMessage();
+                Log.d(TAG,"boot failure...");
+                Log.e(TAG, Log.getStackTraceString(e));
             }
-            SimpleHttpInfo info = getInfo(this,ip, SimpleHttpService.port);
-            ip = info.ip;
-            server = new SocketThread(serverHandler, serverRoot,info.ip,info.port);
-            server.start();
-            currentState = STATE_RUNNING;
-            Log.d(TAG, "boot success...");
-        } catch (Exception e) {
-            currentState = STATE_ERROR;
-            message = e.getMessage();
-            Log.d(TAG,"boot failure...");
-            Log.e(TAG, Log.getStackTraceString(e));
+            connector.send(currentState,new SimpleHttpInfo(ip,port,message));
         }
-        connector.send(currentState,new SimpleHttpInfo(ip,port,message));
     }
 
     @Override

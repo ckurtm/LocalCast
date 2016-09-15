@@ -3,12 +3,12 @@ apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = "1.0.5"
+version = "1.0.6"
 group = "com.peirr"
 
 ext {
     supportLibVersion = '23.1.1'
-    versionName = '1.0.5'
+    versionName = '1.0.6'
     groupId = "com.peirr"
     appId = "localcast"
 }
@@ -25,8 +25,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 5
-        versionName "1.0.5"
+        versionCode 6
+        versionName "1.0.6"
     }
     buildTypes {
         release {

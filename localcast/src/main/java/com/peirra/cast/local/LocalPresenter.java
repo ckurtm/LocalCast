@@ -75,6 +75,7 @@ public class LocalPresenter extends BasePresenter<LocalContract.View>
     @Override
     public void showCastConnected() {
         http.startService();
+        http.connect();
         if(isViewAttached()){
             getView().showCastConnected(true);
         }
@@ -82,7 +83,7 @@ public class LocalPresenter extends BasePresenter<LocalContract.View>
 
     @Override
     public void showCastDisconnected() {
-        http.stopService();
+        http.disconnect();
         if(isViewAttached()){
             getView().showCastConnected(false);
         }
