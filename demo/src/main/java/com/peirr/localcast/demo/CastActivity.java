@@ -1,9 +1,6 @@
 package com.peirr.localcast.demo;
 
-import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -11,32 +8,28 @@ import android.view.Menu;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.android.gms.cast.MediaInfo;
-import com.google.android.gms.cast.MediaMetadata;
-import com.google.android.gms.cast.MediaTrack;
-import com.google.android.gms.common.images.WebImage;
-import com.peirr.http.service.SimpleHttpInfo;
-import com.peirr.http.service.SimpleHttpService;
-import com.peirr.localcast.io.LocalCastManager;
+import com.peirra.cast.local.LocalContract;
+import com.peirra.cast.local.LocalPresenter;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.File;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.List;
-
-public class CastActivity extends AppCompatActivity implements LocalCastManager.HttpConnectionListener, LocalCastManager.CastConnectionListener {
+public class CastActivity extends AppCompatActivity implements LocalContract.View {
     private static final String TAG = "CastActivity";
-    private LocalCastManager castManager;
+    private LocalPresenter castmanager;
     private TextView castMsg, httpMsg;
+
+    private String MESSAGE = "{  \n" +
+            "   \"typ\":\"VIDEO\",\n" +
+            "   \"state\":\"PLAY\",\n" +
+            "   \"version\":1,\n" +
+            "   \"data\":{  \n" +
+            "      \"url\":\"http://www.peirr.com/black.mp4\"\n" +
+            "   }\n" +
+            "}";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cast_demo);
-        castManager = new LocalCastManager(this);
+        castmanager = new LocalPresenter(Injection.provideHttpRequest(this),Injection.provideCastDevice(this,CastOptionsProvider.CUSTOM_NAMESPACE));
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         castMsg = (TextView) findViewById(R.id.cast_message);
         httpMsg = (TextView) findViewById(R.id.http_message);
@@ -47,68 +40,49 @@ public class CastActivity extends AppCompatActivity implements LocalCastManager.
         findViewById(R.id.button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/DevBytes.mp4");
-                MediaPlayer mp = MediaPlayer.create(CastActivity.this, Uri.parse(file.getAbsolutePath()));
-                int duration = mp.getDuration();
-                String url = file.getAbsolutePath();
-                MediaInfo info = castManager.buildMediaInfo("test", "subtitle", duration, url, URLConnection.guessContentTypeFromName(file.getAbsolutePath()), "", "", new ArrayList<MediaTrack>());
-                Log.d(TAG, "[duration:" + duration + "] [url:" + castManager.getEndpoint() + "/" + url + "]");
-                castManager.play(info);
+                castmanager.post(MESSAGE);
             }
         });
-
-        castManager.registerHttpConnectionListener(this);
-        castManager.registerCastConnectionListener(this);
     }
 
 
     @Override
-    protected void onResume() {
-        super.onResume();
-        castManager.connect();
+    protected void onStart() {
+        super.onStart();
+        castmanager.attachView(this);
     }
 
 
     @Override
-    protected void onPause() {
-        super.onPause();
+    protected void onStop() {
+        super.onStop();
+        castmanager.detachView();
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        castManager.disconnect();
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.menu, menu);
-        castManager.addMediaRouterButton(menu, R.id.action_cast);
+        castmanager.addMenu(menu, R.id.action_cast);
         return true;
     }
 
     @Override
-    public void onHttpConnectionChanged(int status, SimpleHttpInfo info) {
-        String message = "";
-        switch (status) {
-            case SimpleHttpService.STATE_RUNNING:
-                message = "RUNNING [" + info.ip + ":" + info.port + "]";
-                break;
-            case SimpleHttpService.STATE_STOPPED:
-                message = "SHUTDOWN [" + info.ip + ":" + info.port + "]";
-                break;
-            case SimpleHttpService.STATE_ERROR:
-                message = "ERROR: " + (info != null ? info.message : "");
-                break;
-        }
-        httpMsg.setText(getString(R.string.http_connection, message));
+    public void showCastConnected(final boolean connected) {
+        String message = connected ? "CONNECTED" : "DISCONNECTED";
+        castMsg.setText(getString(R.string.cast_connection, message));
     }
 
     @Override
-    public void onCastConnectionChanged(boolean connected, Exception exception) {
+    public void showServerConnected(final boolean connected, final String endpoint) {
         String message = connected ? "CONNECTED" : "DISCONNECTED";
-        castMsg.setText(getString(R.string.cast_connection, message));
+        httpMsg.setText(getString(R.string.http_connection, message + ": " + endpoint));
 
+    }
+
+    @Override
+    public void showMessage(final String message) {
+        Log.d(TAG, "showMessage() : " + "message = [" + message + "]");
     }
 }
