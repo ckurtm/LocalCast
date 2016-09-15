@@ -21,10 +21,12 @@ public class LocalPresenter extends BasePresenter<LocalContract.View>
 
     private HttpPresenter http;
     private CastPresenter cast;
+    private boolean keepAlive;
 
-    public LocalPresenter(final IServerRequest httpRequest, final CastDevice device) {
+    public LocalPresenter(final IServerRequest httpRequest, final CastDevice device, boolean keepAlive) {
         http = new HttpPresenter(httpRequest);
         cast = new CastPresenter(device);
+        this.keepAlive = keepAlive;
     }
 
     @Override
@@ -61,12 +63,12 @@ public class LocalPresenter extends BasePresenter<LocalContract.View>
                 break;
             case SimpleHttpService.STATE_STOPPED:
                 if (isViewAttached()) {
-                    getView().showServerConnected(false,"");
+                    getView().showServerConnected(false, "");
                 }
                 break;
             case SimpleHttpService.STATE_ERROR:
                 if (isViewAttached()) {
-                    getView().showServerConnected(false,"");
+                    getView().showServerConnected(false, "");
                 }
                 break;
         }
@@ -74,9 +76,13 @@ public class LocalPresenter extends BasePresenter<LocalContract.View>
 
     @Override
     public void showCastConnected() {
-        http.startService();
+        if(keepAlive) {
+            http.startService();
+        }else{
+            http.bootup();
+        }
         http.connect();
-        if(isViewAttached()){
+        if (isViewAttached()) {
             getView().showCastConnected(true);
         }
     }
@@ -84,7 +90,7 @@ public class LocalPresenter extends BasePresenter<LocalContract.View>
     @Override
     public void showCastDisconnected() {
         http.disconnect();
-        if(isViewAttached()){
+        if (isViewAttached()) {
             getView().showCastConnected(false);
         }
     }

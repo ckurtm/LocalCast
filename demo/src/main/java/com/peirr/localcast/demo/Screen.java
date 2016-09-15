@@ -31,7 +31,7 @@ public class Screen extends AppCompatActivity implements LocalContract.View {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cast_demo);
         presenter = new LocalPresenter(Injection.provideHttpRequest(this),
-                Injection.provideCastDevice(this, CastOptionsProvider.CUSTOM_NAMESPACE));
+                Injection.provideCastDevice(this, CastOptionsProvider.CUSTOM_NAMESPACE),false);
         final Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         castMsg = (TextView) findViewById(R.id.cast_message);
         httpMsg = (TextView) findViewById(R.id.http_message);
