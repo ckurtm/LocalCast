@@ -1,17 +1,14 @@
-
-
 apply plugin: 'com.android.library'
+apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-
-
-version = "1.0.5"
+version = "1.0.7"
 group = "com.peirr"
 
 ext {
     supportLibVersion = '23.1.1'
-    versionName = '1.0.5'
+    versionName = '1.0.7'
     groupId = "com.peirr"
     appId = "localcast"
 }
@@ -21,15 +18,15 @@ def gitUrl = 'https://github.com/ckurtm/LocalCast.git'
 
 
 android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
+    compileSdkVersion 24
+    buildToolsVersion "24.0.2"
     publishNonDefault false
 
     defaultConfig {
         minSdkVersion 16
-        targetSdkVersion 23
-        versionCode 5
-        versionName "${versionName}"
+        targetSdkVersion 24
+        versionCode 7
+        versionName "1.0.7"
     }
     buildTypes {
         release {
@@ -109,12 +106,12 @@ artifacts {
     archives sourcesJar
 }
 
-task findConventions << {
-    println project.getConvention()
-}
-
 
 dependencies {
-    compile 'com.google.android.libraries.cast.companionlibrary:ccl:2.8.0'
-    compile 'com.peirr.http:http_service:1.6'
+    compile 'com.google.android.libraries.cast.companionlibrary:ccl:2.8.4'
+    compile 'com.google.android.gms:play-services-cast-framework:9.4.0'
+    compile 'com.android.support:mediarouter-v7:24.2.1'
+    compile 'com.squareup:javapoet:1.7.0'
+    compile 'ckm.simple:remote-service-processor:1.0.3'
+    compile 'ckm.simple:remote-service-annotation:1.0.3'
 }
