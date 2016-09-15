@@ -17,7 +17,7 @@ public class LocalContract {
         void showMessage(String message);
     }
 
-    interface Presenter extends MvpPresenter<View> {
+    public interface Presenter extends MvpPresenter<View> {
         void addMenu(Menu menu,int menuItemid);
         void post(String message);
     }
