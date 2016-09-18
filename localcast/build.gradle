@@ -112,6 +112,8 @@ artifacts {
 
 
 dependencies {
-    compile 'com.peirr:simplecast:1.0.1'
-    compile 'com.peirr.http:http_service:1.9'
+    compile 'com.peirr:simplecast:1.0.2'
+    compile ('com.peirr.http:http_service:2.0'){
+        exclude module: 'com.peirr:presentation'
+    }
 }

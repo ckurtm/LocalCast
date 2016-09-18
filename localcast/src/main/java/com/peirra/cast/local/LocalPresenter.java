@@ -52,6 +52,7 @@ public class LocalPresenter extends BasePresenter<LocalContract.View>
     @Override
     public void detachView() {
         super.detachView();
+        http.disconnect();
         http.detachView();
         cast.detachView();
     }
@@ -95,7 +96,9 @@ public class LocalPresenter extends BasePresenter<LocalContract.View>
     @Override
     public void showCastDisconnected() {
         castConnected = false;
-        http.disconnect();
+        if(!keepAlive){
+            http.shutdown();
+        }
         if (isViewAttached()) {
             getView().showCastConnected(false);
         }
