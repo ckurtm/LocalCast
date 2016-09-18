@@ -1,13 +1,18 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.neenbedankt.android-apt'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = "1.1.0"
+repositories {
+    maven {
+        url  "http://dl.bintray.com/ckurtm/maven"
+    }
+}
+
+version = "1.1.1"
 group = "com.peirr"
 
 ext {
-    versionName = '1.1.0'
+    versionName = '1.1.1'
     groupId = "com.peirr"
     appId = "localcast"
 }
@@ -24,8 +29,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 24
-        versionCode 9
-        versionName "1.1.0"
+        versionCode 10
+        versionName "1.1.1"
     }
     buildTypes {
         release {
@@ -107,10 +112,6 @@ artifacts {
 
 
 dependencies {
-    compile 'com.google.android.libraries.cast.companionlibrary:ccl:2.8.4'
-    compile 'com.google.android.gms:play-services-cast-framework:9.4.0'
-    compile 'com.android.support:mediarouter-v7:24.2.1'
-    compile 'com.squareup:javapoet:1.7.0'
-    compile 'ckm.simple:remote-service-processor:1.0.3'
-    compile 'ckm.simple:remote-service-annotation:1.0.3'
+    compile 'com.peirr:simplecast:1.0.1'
+    compile 'com.peirr.http:http_service:1.9'
 }

@@ -2,15 +2,16 @@ package com.peirra.cast.local;
 
 import android.view.Menu;
 
-import com.peirra.cast.CastContract;
-import com.peirra.cast.CastDevice;
-import com.peirra.cast.CastPresenter;
-import com.peirra.common.BasePresenter;
-import com.peirra.http.HttpContract;
-import com.peirra.http.HttpPresenter;
-import com.peirra.http.IServerRequest;
-import com.peirra.http.service.SimpleHttpInfo;
-import com.peirra.http.service.SimpleHttpService;
+import com.peirr.cast.CastContract;
+import com.peirr.cast.CastDevice;
+import com.peirr.cast.CastPresenter;
+import com.peirr.http.HttpContract;
+import com.peirr.http.HttpPresenter;
+import com.peirr.http.IServerRequest;
+import com.peirr.http.service.SimpleHttpInfo;
+import com.peirr.http.service.SimpleHttpService;
+import com.peirr.presentation.BasePresenter;
+
 
 /**
  * Created by kurt on 2016/09/15.

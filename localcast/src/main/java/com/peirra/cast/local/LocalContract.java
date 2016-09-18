@@ -2,8 +2,9 @@ package com.peirra.cast.local;
 
 import android.view.Menu;
 
-import com.peirra.common.MvpPresenter;
-import com.peirra.common.MvpView;
+import com.peirr.presentation.MvpPresenter;
+import com.peirr.presentation.MvpView;
+
 
 /**
  * Created by kurt on 2016/09/15.

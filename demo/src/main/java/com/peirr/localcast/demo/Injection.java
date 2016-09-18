@@ -3,11 +3,11 @@ package com.peirr.localcast.demo;
 import android.app.Activity;
 import android.content.Context;
 
-import com.peirra.cast.CastDevice;
-import com.peirra.cast.CastDeviceManager;
-import com.peirra.http.HttpServer;
-import com.peirra.http.IServerRequest;
-import com.peirra.http.service.SimpleHttpService;
+import com.peirr.cast.CastDevice;
+import com.peirr.cast.CastDeviceManager;
+import com.peirr.http.HttpServer;
+import com.peirr.http.IServerRequest;
+import com.peirr.http.service.SimpleHttpService;
 
 /**
  * Created by kurt on 2016/09/15.
