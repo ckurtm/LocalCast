@@ -2,11 +2,11 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = "1.1.3"
+version = "1.1.4"
 group = "com.peirr"
 
 ext {
-    versionName = '1.1.3'
+    versionName = '1.1.4'
     groupId = "com.peirr"
     appId = "localcast"
 }
@@ -24,7 +24,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 24
         versionCode 10
-        versionName "1.1.3"
+        versionName "1.1.4"
     }
     buildTypes {
         release {

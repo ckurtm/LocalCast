@@ -1,5 +1,6 @@
 package com.peirra.cast.local;
 
+import android.util.Log;
 import android.view.Menu;
 
 import com.peirr.cast.CastContract;
@@ -19,7 +20,7 @@ import com.peirr.presentation.BasePresenter;
 
 public class LocalPresenter extends BasePresenter<LocalContract.View>
         implements LocalContract.Presenter, HttpContract.View, CastContract.View {
-
+    private static final String TAG = "LocalPresenter";
     private HttpPresenter http;
     private CastPresenter cast;
     private boolean keepAlive;
@@ -61,6 +62,7 @@ public class LocalPresenter extends BasePresenter<LocalContract.View>
 
     @Override
     public void showHttpStatus(final int status, final SimpleHttpInfo info) {
+        Log.d(TAG, "showHttpStatus() : " + "status = [" + status + "], info = [" + info + "]");
         this.info = info;
         switch (status) {
             case SimpleHttpService.STATE_RUNNING:
