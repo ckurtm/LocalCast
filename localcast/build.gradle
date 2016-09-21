@@ -2,11 +2,11 @@ apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 apply plugin: 'com.jfrog.bintray'
 
-version = "1.1.4"
+version = "1.1.6"
 group = "com.peirr"
 
 ext {
-    versionName = '1.1.4'
+    versionName = '1.1.6'
     groupId = "com.peirr"
     appId = "localcast"
 }
@@ -24,7 +24,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 24
         versionCode 10
-        versionName "1.1.4"
+        versionName "1.1.6"
     }
     buildTypes {
         release {
@@ -106,7 +106,7 @@ artifacts {
 
 
 dependencies {
-    compile 'com.peirr:simplecast:1.0.4'
+    compile 'com.peirr:simplecast:1.0.6'
     compile ('com.peirr.http:http_service:2.0'){
         exclude module: 'com.peirr:presentation'
     }
